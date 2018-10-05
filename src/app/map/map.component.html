@@ -1,0 +1,115 @@
+
+
+<div *ngIf="this.showShipment" class="border">
+  <h2>Critical Shipments</h2>
+<table class="table table-set tableSettings">
+<thead >
+ 
+  <tr class="headerSettings" align = "center">
+    <th>Route Score</th>
+    <th>Master Shipment #</th>
+    <th>Customer Destination</th>
+    <th>Forecasted cost</th>
+    <th>Expected cost</th>
+    <th>Forecasted Customer Arrival</th>
+    <th>Expected Customer Arrival</th>
+  </tr>
+
+</thead>
+    <tbody *ngFor = 'let item of markers[this.counterr]' align = "center">      
+    <tr *ngFor = 'let x of item["Shipments"]; let i = index' (click) = "pickRoute(this.markers[this.counterr][0]['Processing Centre'][i]['v'], this.markers[this.counterr][0]['Processing Centre'][i]['r'], this.markers[this.counterr][0]['Processing Centre'][i]['iScore'], this.markers[this.counterr][0]['Processing Centre'][i]['ExpectedCost'], this.markers[this.counterr][0]['Processing Centre'][i]['delay'])"
+     (click)='setClickedRow(i)' [class.active]='i == this.selectedRow'
+ >
+    <td> {{ x.RouteScore }} </td>
+    <td> {{ x.MasterShipment }} </td>
+    <td> {{ x.CustomerDestination }} </td>
+    <td> {{ x.ForecastedCost | currency: 'USD': 'symbol'}} </td>
+    <td> {{ x.ExpectedCost | currency: 'USD': 'symbol' }} </td>
+    <td> {{ x.ForecastedCustomerArrival | date}} </td>
+    <td> {{ x.ExpectedCustomerArrival | date}} </td>
+    </tr>
+  </tbody>
+
+</table>
+</div>
+
+<div class="container1">
+<div id="map">
+  <div class="leaflet-bottom leaflet-right">
+    <input type="button" id="Btn2" value="Show Route" (click)="this.sRoute()"(click) = "setShowShipment()" class="leaflet-control" /> 
+    <input type="button" id="Btn2" value="Next Shipment" (click)="this.nRoute()" (click)="this.clickZoom()" class="leaflet-control" /> 
+    <input type="button" id="Btn2" value="Previous Shipment" (click)="this.pRoute()" (click)="this.clickZoom()" class="leaflet-control" />
+</div>
+</div>
+
+
+<div class="setSpan2 row">
+  <div class="col-md-3 "  align= "center">
+    <p><b>Score:</b></p> 
+    <p class="green display-4" *ngIf = "this.score > 100"><b>100 </b></p> 
+    <p class="display-4"[ngClass] ="{'red': this.score  <= 50, 'orange': this.score >50 && this.score <= 70, 'green': this.score  > 70}" *ngIf = "this.score <= 100 && this.score >= 0"><b>{{this.score}}</b></p>
+    <p class = "red display-4" *ngIf = "this.score < 0"><b>0</b></p>
+  </div>
+  <div class="col-md-3" align= "center">
+    <p>Expected Cost:</p>  
+    <h2>{{this.eCost | currency: 'USD': 'symbol'}}</h2>
+  </div>
+  <div class="col-md-3"  align= "center">
+    <p>Arrival at Customer:</p>  
+    <h2 *ngIf="this.showDate == 'True'">{{this.arrival | date}}</h2>
+    
+  </div>
+  <div class="col-md-3 fontSize justify-content-center align-self-center"  align= "right">
+    <p>Processing Centre (PC): {{this.ProcessingCentre}}</p>  
+    <p>Transport to PC: {{this.TransportVendor}}</p> 
+    <p>Transport Customer: {{this.TransportCustomer}}</p> 
+  </div>
+</div>
+
+
+<tabs  class="noPad">
+  <tab class="row" tabTitle="Processing Centre (PC)" >
+    <div class="col-md-12">
+    <h3>Routes available:</h3>
+    <mat-radio-group *ngFor = 'let item of markers[this.counterr]'>
+ <div *ngFor = 'let x of item["Processing Centre"]'>
+      <mat-radio-button color="primary" value = {{x.v}}  (click) = "pickRoute(x.v, x.r, x.iScore, x.ExpectedCost, x.delay)">{{x.r}}</mat-radio-button>
+    </div>
+    </mat-radio-group>
+  </div>
+  </tab>
+
+
+  <tab tabTitle="Transport to PC">
+    <div class="row">
+      <div class="col-md-4">
+    <h3>Transport Type:</h3>
+    <mat-radio-group *ngFor = 'let items of markers[this.counterr]'>
+ <div class="col-md-6" *ngFor = 'let y of items["Transport Type"]'>
+      <mat-radio-button color="primary" value = {{y.v}} (click) = "pickTransportType(y.iScore, y.delay, y.cost)" *ngIf="y.available == 'True'">
+        {{y.type}}</mat-radio-button>
+    </div>
+    </mat-radio-group>
+  </div>
+  <div class="col-md-4">
+    <h3>Transport Vendor:</h3>
+    <mat-radio-group *ngFor = 'let items of markers[this.counterr]'>
+ <div *ngFor = 'let y of items["Transport Vendor"]'>
+      <mat-radio-button color="primary" value = {{y.v}}  (click) = "pickTransportVendor(y.vendor, y.iScore, y.delay, y.cost)" >{{y.vendor}}</mat-radio-button>
+    </div>
+    </mat-radio-group>
+  </div>
+</div>
+  </tab>
+  <tab class="row" tabTitle="Transport Customer">
+    <div class="col-md-12">  
+    <h3>Transport Vendor:</h3>
+      <mat-radio-group *ngFor = 'let item of markers[this.counterr]'>
+   <div class="col-md-12"   *ngFor = 'let x of item["Transport Customer"]'>
+        <mat-radio-button color="primary" value = {{x.v}} (click)= "pickTransportCustomer(x.vendor, x.iScore, x.delay, x.cost)">{{x.vendor}}</mat-radio-button>
+      </div>
+      </mat-radio-group>
+    </div>
+  </tab>
+</tabs>
+</div>
